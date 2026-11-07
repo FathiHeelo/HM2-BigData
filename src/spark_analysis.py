@@ -7,6 +7,11 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import (ArrayType, DoubleType, IntegerType,
                                StringType, StructField, StructType, TimestampType)
 
+try:
+    from pymongo import MongoClient
+except ImportError:
+    MongoClient = None
+
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
 PARQUET_PATH = ROOT / "course_stats.parquet"
@@ -46,6 +51,26 @@ def run(title, sql, show=True, n=200):
     return df
 
 
+def mongo_ids(query):
+    """_id values matching a query in university.students, or None if MongoDB is unavailable."""
+    if MongoClient is None:
+        print("pymongo not installed; skipping comparison with MongoDB.")
+        return None
+    try:
+        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=3000)
+        return {d["_id"] for d in client["university"]["students"].find(query, {"_id": 1})}
+    except Exception as e:
+        print("MongoDB not available; skipping comparison:", e)
+        return None
+
+
+def compare_with_mongo(label, spark_df, query):
+    ids = mongo_ids(query)
+    if ids is not None:
+        spark_ids = {row["_id"] for row in spark_df.collect()}
+        print(f"{label}: {spark_ids == ids} (MongoDB {len(ids)}, Spark {len(spark_ids)})")
+
+
 schema = StructType([
     StructField("_id", IntegerType()),
     StructField("firstName", StringType()),
@@ -57,6 +82,10 @@ schema = StructType([
 
 df = spark.read.schema(schema).json(str(DATA_DIR / "students.json"))
 df.printSchema()
+types = {f.name: f.dataType for f in df.schema.fields}
+print("courseIds is ArrayType(IntegerType):",
+      isinstance(types["courseIds"], ArrayType) and isinstance(types["courseIds"].elementType, IntegerType))
+print("dateOfBirth is TimestampType:", isinstance(types["dateOfBirth"], TimestampType))
 print("Rows:", df.count())
 df.createOrReplaceTempView("students")
 
@@ -68,6 +97,7 @@ r1 = run("4.1.1 Students in course 103", """
     ORDER BY lastName, firstName, _id
 """)
 print("4.1.1 count:", r1.count())
+compare_with_mongo("4.1.1 matches Part 2", r1, {"courseIds": 103})
 
 r2 = run("4.1.2 Students with GPA > 3.5", """
     SELECT _id, firstName, lastName, gpa
@@ -76,6 +106,7 @@ r2 = run("4.1.2 Students with GPA > 3.5", """
     ORDER BY gpa DESC, lastName, _id
 """)
 print("4.1.2 count:", r2.count())
+compare_with_mongo("4.1.2 matches Part 3", r2, {"gpa": {"$gt": 3.5}})
 
 # ---------- 4.2 ----------
 run("4.2.1 Enrollments view (one row per student/course)", """
