@@ -1,0 +1,463 @@
+Spark version: 4.2.0
+root
+ |-- _id: integer (nullable = true)
+ |-- firstName: string (nullable = true)
+ |-- lastName: string (nullable = true)
+ |-- dateOfBirth: timestamp (nullable = true)
+ |-- courseIds: array (nullable = true)
+ |    |-- element: integer (containsNull = true)
+ |-- gpa: double (nullable = true)
+
+Rows: 100
+
+===== 4.1.1 Students in course 103
+SELECT _id, firstName, lastName, gpa
+FROM students
+WHERE array_contains(courseIds, 103)
+ORDER BY lastName, firstName, _id
+
++---+---------+--------+---+
+|_id|firstName|lastName|gpa|
++---+---------+--------+---+
+|22 |Victoria |Anderson|3.1|
+|51 |Yasmine  |Baker   |3.1|
+|87 |Isabella |Bell    |3.1|
+|41 |Olivia   |Bell    |3.4|
+|36 |James    |Brooks  |3.5|
+|96 |Rachel   |Brooks  |3.5|
+|17 |Quinn    |Brown   |3.6|
+|81 |Chloe    |Butler  |3.9|
+|48 |Victoria |Butler  |3.5|
+|58 |Felix    |Cook    |3.1|
+|99 |Uriel    |Cook    |3.1|
+|25 |Yasmine  |Cooper  |3.2|
+|5  |Eric     |Davis   |3.1|
+|19 |Samuel   |Evans   |3.8|
+|39 |Mia      |Fisher  |3.1|
+|72 |Taylor   |Fisher  |3.5|
+|49 |William  |Fisher  |3.2|
+|45 |Samuel   |Foster  |3.9|
+|53 |Ava      |Gonzalez|3.4|
+|74 |Victoria |Gonzalez|3.9|
+|34 |Henry    |Hall    |3.1|
+|12 |Liam     |Hall    |3.2|
+|60 |Henry    |Howard  |3.5|
+|1  |Alice    |Johnson |3.8|
+|14 |Noah     |Johnson |3.1|
+|8  |Hannah   |Lee     |3.6|
+|65 |Mia      |Lopez   |3.4|
+|27 |Ava      |Parker  |3.1|
+|84 |Felix    |Parker  |3.5|
+|29 |Chloe    |Reed    |3.4|
+|69 |Quinn    |Reed    |3.9|
+|63 |Katherine|Stewart |3.1|
+|91 |Mia      |Ward    |3.8|
+|3  |Charlie  |Williams|3.2|
+|94 |Peter    |Young   |3.1|
+|77 |Yasmine  |Young   |3.4|
++---+---------+--------+---+
+
+4.1.1 count: 36
+
+===== 4.1.2 Students with GPA > 3.5
+SELECT _id, firstName, lastName, gpa
+FROM students
+WHERE gpa > 3.5
+ORDER BY gpa DESC, lastName, _id
+
++---+---------+--------+---+
+|_id|firstName|lastName|gpa|
++---+---------+--------+---+
+|93 |Olivia   |Baker   |3.9|
+|81 |Chloe    |Butler  |3.9|
+|13 |Mia      |Evans   |3.9|
+|45 |Samuel   |Foster  |3.9|
+|74 |Victoria |Gonzalez|3.9|
+|86 |Henry    |Gonzalez|3.9|
+|57 |Emma     |Hall    |3.9|
+|62 |James    |Hill    |3.9|
+|26 |Zachary  |Lewis   |3.9|
+|4  |Diana    |Miller  |3.9|
+|21 |Uriel    |Moore   |3.9|
+|50 |Xavier   |Perez   |3.9|
+|98 |Taylor   |Perez   |3.9|
+|69 |Quinn    |Reed    |3.9|
+|38 |Liam     |Roberts |3.9|
+|33 |Grace    |Russell |3.9|
+|55 |Chloe    |Adams   |3.8|
+|10 |Jack     |Clark   |3.8|
+|43 |Quinn    |Cooper  |3.8|
+|19 |Samuel   |Evans   |3.8|
+|79 |Ava      |Gonzalez|3.8|
+|1  |Alice    |Johnson |3.8|
+|31 |Emma     |Turner  |3.8|
+|91 |Mia      |Ward    |3.8|
+|67 |Olivia   |Young   |3.8|
+|83 |Emma     |Adams   |3.7|
+|59 |Grace    |Fisher  |3.7|
+|64 |Liam     |Fisher  |3.7|
+|100|Victoria |Fisher  |3.7|
+|47 |Uriel    |Martin  |3.7|
+|6  |Fiona    |Moore   |3.7|
+|71 |Samuel   |Moore   |3.7|
+|52 |Zachary  |Murphy  |3.7|
+|35 |Isabella |Perez   |3.7|
+|76 |Xavier   |Reed    |3.7|
+|15 |Olivia   |Smith   |3.7|
+|88 |James    |Stewart |3.7|
+|23 |William  |Thomas  |3.7|
+|28 |Benjamin |Ward    |3.7|
+|95 |Quinn    |Ward    |3.7|
+|40 |Nathan   |Young   |3.7|
+|17 |Quinn    |Brown   |3.6|
+|54 |Benjamin |Evans   |3.6|
+|90 |Liam     |Hall    |3.6|
+|78 |Zachary  |Howard  |3.6|
+|8  |Hannah   |Lee     |3.6|
+|30 |Daniel   |Murphy  |3.6|
+|66 |Nathan   |Reed    |3.6|
+|42 |Peter    |Williams|3.6|
++---+---------+--------+---+
+
+4.1.2 count: 49
+
+===== 4.2.1 Enrollments view (one row per student/course)
+CREATE OR REPLACE TEMP VIEW enrollments AS
+SELECT _id AS studentId, firstName, lastName, dateOfBirth, gpa,
+       explode(courseIds) AS courseId
+FROM students
+
+
+===== 4.2.1 First 10 enrollments
+SELECT * FROM enrollments ORDER BY studentId, courseId LIMIT 10
+
++---------+---------+--------+-------------------+---+--------+
+|studentId|firstName|lastName|dateOfBirth        |gpa|courseId|
++---------+---------+--------+-------------------+---+--------+
+|1        |Alice    |Johnson |1998-03-15 00:00:00|3.8|101     |
+|1        |Alice    |Johnson |1998-03-15 00:00:00|3.8|102     |
+|1        |Alice    |Johnson |1998-03-15 00:00:00|3.8|103     |
+|2        |Bob      |Smith   |1997-06-22 00:00:00|3.5|102     |
+|2        |Bob      |Smith   |1997-06-22 00:00:00|3.5|104     |
+|2        |Bob      |Smith   |1997-06-22 00:00:00|3.5|105     |
+|3        |Charlie  |Williams|1999-01-10 00:00:00|3.2|101     |
+|3        |Charlie  |Williams|1999-01-10 00:00:00|3.2|103     |
+|3        |Charlie  |Williams|1999-01-10 00:00:00|3.2|105     |
+|4        |Diana    |Miller  |1997-09-05 00:00:00|3.9|101     |
++---------+---------+--------+-------------------+---+--------+
+
+Enrollment rows: 218
+
+===== 4.2.2 Summary per course
+SELECT courseId,
+       COUNT(*)           AS num_students,
+       ROUND(AVG(gpa), 2) AS avg_gpa,
+       MIN(gpa)           AS min_gpa,
+       MAX(gpa)           AS max_gpa
+FROM enrollments
+GROUP BY courseId
+ORDER BY num_students DESC, courseId
+
++--------+------------+-------+-------+-------+
+|courseId|num_students|avg_gpa|min_gpa|max_gpa|
++--------+------------+-------+-------+-------+
+|101     |48          |3.56   |3.1    |3.9    |
+|105     |47          |3.5    |3.1    |3.9    |
+|104     |44          |3.59   |3.1    |3.9    |
+|102     |43          |3.5    |3.1    |3.9    |
+|103     |36          |3.39   |3.1    |3.9    |
++--------+------------+-------+-------+-------+
+
+
+===== 4.2.3 Students by number of courses
+SELECT size(courseIds) AS num_courses, COUNT(*) AS num_students
+FROM students
+GROUP BY size(courseIds)
+ORDER BY num_courses
+
++-----------+------------+
+|num_courses|num_students|
++-----------+------------+
+|1          |8           |
+|2          |66          |
+|3          |26          |
++-----------+------------+
+
+
+===== 4.3.1 Students and average GPA by birth year
+SELECT year(dateOfBirth)  AS birth_year,
+       COUNT(*)           AS num_students,
+       ROUND(AVG(gpa), 2) AS avg_gpa
+FROM students
+GROUP BY year(dateOfBirth)
+ORDER BY birth_year
+
++----------+------------+-------+
+|birth_year|num_students|avg_gpa|
++----------+------------+-------+
+|1997      |47          |3.54   |
+|1998      |29          |3.5    |
+|1999      |24          |3.45   |
++----------+------------+-------+
+
+
+===== 4.3.2 Top 3 GPAs per course (ties kept)
+SELECT courseId, rnk, studentId, firstName, lastName, gpa
+FROM (
+    SELECT courseId, studentId, firstName, lastName, gpa,
+           DENSE_RANK() OVER (PARTITION BY courseId ORDER BY gpa DESC) AS rnk
+    FROM enrollments
+) ranked
+WHERE rnk <= 3
+ORDER BY courseId, rnk, lastName, studentId
+
++--------+---+---------+---------+--------+---+
+|courseId|rnk|studentId|firstName|lastName|gpa|
++--------+---+---------+---------+--------+---+
+|101     |1  |93       |Olivia   |Baker   |3.9|
+|101     |1  |81       |Chloe    |Butler  |3.9|
+|101     |1  |45       |Samuel   |Foster  |3.9|
+|101     |1  |74       |Victoria |Gonzalez|3.9|
+|101     |1  |57       |Emma     |Hall    |3.9|
+|101     |1  |62       |James    |Hill    |3.9|
+|101     |1  |4        |Diana    |Miller  |3.9|
+|101     |1  |21       |Uriel    |Moore   |3.9|
+|101     |1  |38       |Liam     |Roberts |3.9|
+|101     |1  |33       |Grace    |Russell |3.9|
+|101     |2  |55       |Chloe    |Adams   |3.8|
+|101     |2  |10       |Jack     |Clark   |3.8|
+|101     |2  |43       |Quinn    |Cooper  |3.8|
+|101     |2  |19       |Samuel   |Evans   |3.8|
+|101     |2  |1        |Alice    |Johnson |3.8|
+|101     |2  |31       |Emma     |Turner  |3.8|
+|101     |2  |91       |Mia      |Ward    |3.8|
+|101     |3  |83       |Emma     |Adams   |3.7|
+|101     |3  |64       |Liam     |Fisher  |3.7|
+|101     |3  |47       |Uriel    |Martin  |3.7|
+|101     |3  |76       |Xavier   |Reed    |3.7|
+|101     |3  |23       |William  |Thomas  |3.7|
+|101     |3  |95       |Quinn    |Ward    |3.7|
+|101     |3  |40       |Nathan   |Young   |3.7|
+|102     |1  |13       |Mia      |Evans   |3.9|
+|102     |1  |74       |Victoria |Gonzalez|3.9|
+|102     |1  |86       |Henry    |Gonzalez|3.9|
+|102     |1  |26       |Zachary  |Lewis   |3.9|
+|102     |1  |4        |Diana    |Miller  |3.9|
+|102     |1  |21       |Uriel    |Moore   |3.9|
+|102     |1  |69       |Quinn    |Reed    |3.9|
+|102     |2  |55       |Chloe    |Adams   |3.8|
+|102     |2  |10       |Jack     |Clark   |3.8|
+|102     |2  |43       |Quinn    |Cooper  |3.8|
+|102     |2  |79       |Ava      |Gonzalez|3.8|
+|102     |2  |1        |Alice    |Johnson |3.8|
+|102     |2  |31       |Emma     |Turner  |3.8|
+|102     |3  |100      |Victoria |Fisher  |3.7|
+|102     |3  |6        |Fiona    |Moore   |3.7|
+|102     |3  |71       |Samuel   |Moore   |3.7|
+|102     |3  |52       |Zachary  |Murphy  |3.7|
+|102     |3  |23       |William  |Thomas  |3.7|
+|103     |1  |81       |Chloe    |Butler  |3.9|
+|103     |1  |45       |Samuel   |Foster  |3.9|
+|103     |1  |74       |Victoria |Gonzalez|3.9|
+|103     |1  |69       |Quinn    |Reed    |3.9|
+|103     |2  |19       |Samuel   |Evans   |3.8|
+|103     |2  |1        |Alice    |Johnson |3.8|
+|103     |2  |91       |Mia      |Ward    |3.8|
+|103     |3  |17       |Quinn    |Brown   |3.6|
+|103     |3  |8        |Hannah   |Lee     |3.6|
+|104     |1  |13       |Mia      |Evans   |3.9|
+|104     |1  |45       |Samuel   |Foster  |3.9|
+|104     |1  |86       |Henry    |Gonzalez|3.9|
+|104     |1  |57       |Emma     |Hall    |3.9|
+|104     |1  |26       |Zachary  |Lewis   |3.9|
+|104     |1  |4        |Diana    |Miller  |3.9|
+|104     |1  |21       |Uriel    |Moore   |3.9|
+|104     |1  |50       |Xavier   |Perez   |3.9|
+|104     |1  |33       |Grace    |Russell |3.9|
+|104     |2  |19       |Samuel   |Evans   |3.8|
+|104     |2  |79       |Ava      |Gonzalez|3.8|
+|104     |3  |83       |Emma     |Adams   |3.7|
+|104     |3  |59       |Grace    |Fisher  |3.7|
+|104     |3  |64       |Liam     |Fisher  |3.7|
+|104     |3  |47       |Uriel    |Martin  |3.7|
+|104     |3  |6        |Fiona    |Moore   |3.7|
+|104     |3  |71       |Samuel   |Moore   |3.7|
+|104     |3  |52       |Zachary  |Murphy  |3.7|
+|104     |3  |35       |Isabella |Perez   |3.7|
+|104     |3  |76       |Xavier   |Reed    |3.7|
+|104     |3  |88       |James    |Stewart |3.7|
+|104     |3  |28       |Benjamin |Ward    |3.7|
+|104     |3  |95       |Quinn    |Ward    |3.7|
+|104     |3  |40       |Nathan   |Young   |3.7|
+|105     |1  |93       |Olivia   |Baker   |3.9|
+|105     |1  |57       |Emma     |Hall    |3.9|
+|105     |1  |62       |James    |Hill    |3.9|
+|105     |1  |50       |Xavier   |Perez   |3.9|
+|105     |1  |98       |Taylor   |Perez   |3.9|
+|105     |1  |38       |Liam     |Roberts |3.9|
+|105     |1  |33       |Grace    |Russell |3.9|
+|105     |2  |67       |Olivia   |Young   |3.8|
+|105     |3  |59       |Grace    |Fisher  |3.7|
+|105     |3  |64       |Liam     |Fisher  |3.7|
+|105     |3  |100      |Victoria |Fisher  |3.7|
+|105     |3  |71       |Samuel   |Moore   |3.7|
+|105     |3  |35       |Isabella |Perez   |3.7|
+|105     |3  |76       |Xavier   |Reed    |3.7|
+|105     |3  |15       |Olivia   |Smith   |3.7|
+|105     |3  |88       |James    |Stewart |3.7|
+|105     |3  |28       |Benjamin |Ward    |3.7|
+|105     |3  |95       |Quinn    |Ward    |3.7|
+|105     |3  |40       |Nathan   |Young   |3.7|
++--------+---+---------+---------+--------+---+
+
+Rows: 94
+
+===== 4.3.3 Students sharing the same first and last name
+SELECT a._id AS id1, b._id AS id2,
+       a.firstName, a.lastName,
+       CAST(a.dateOfBirth AS DATE) AS dob1,
+       CAST(b.dateOfBirth AS DATE) AS dob2
+FROM students a
+JOIN students b
+  ON a.firstName = b.firstName
+ AND a.lastName = b.lastName
+ AND a._id < b._id
+ORDER BY a.lastName, a.firstName, a._id
+
++---+---+---------+--------+----------+----------+
+|id1|id2|firstName|lastName|dob1      |dob2      |
++---+---+---------+--------+----------+----------+
+|53 |79 |Ava      |Gonzalez|1997-10-18|1997-03-28|
+|12 |90 |Liam     |Hall    |1997-12-27|1998-08-22|
+|56 |82 |Daniel   |Martin  |1999-05-26|1998-01-22|
+|71 |97 |Samuel   |Moore   |1997-01-29|1997-04-09|
+|28 |80 |Benjamin |Ward    |1999-07-01|1999-08-16|
+|16 |42 |Peter    |Williams|1998-01-14|1998-11-30|
+|18 |70 |Rachel   |Young   |1998-09-19|1999-09-20|
++---+---+---------+--------+----------+----------+
+
+Pairs: 7
+
+===== 4.3.4 Students above the average GPA of every course they take
+WITH course_avg AS (
+    SELECT courseId, AVG(CAST(gpa AS DECIMAL(4,1))) AS avg_gpa
+    FROM enrollments
+    GROUP BY courseId
+)
+SELECT e.studentId, e.firstName, e.lastName, e.gpa,
+       sort_array(collect_list(e.courseId)) AS courseIds
+FROM enrollments e
+JOIN course_avg c ON e.courseId = c.courseId
+GROUP BY e.studentId, e.firstName, e.lastName, e.gpa
+HAVING bool_and(CAST(e.gpa AS DECIMAL(4,1)) > c.avg_gpa)
+ORDER BY e.gpa DESC, e.studentId
+
++---------+---------+--------+---+---------------+
+|studentId|firstName|lastName|gpa|courseIds      |
++---------+---------+--------+---+---------------+
+|4        |Diana    |Miller  |3.9|[101, 102, 104]|
+|13       |Mia      |Evans   |3.9|[102, 104]     |
+|21       |Uriel    |Moore   |3.9|[101, 102, 104]|
+|26       |Zachary  |Lewis   |3.9|[102, 104]     |
+|33       |Grace    |Russell |3.9|[101, 104, 105]|
+|38       |Liam     |Roberts |3.9|[101, 105]     |
+|45       |Samuel   |Foster  |3.9|[101, 103, 104]|
+|50       |Xavier   |Perez   |3.9|[104, 105]     |
+|57       |Emma     |Hall    |3.9|[101, 104, 105]|
+|62       |James    |Hill    |3.9|[101, 105]     |
+|69       |Quinn    |Reed    |3.9|[102, 103]     |
+|74       |Victoria |Gonzalez|3.9|[101, 102, 103]|
+|81       |Chloe    |Butler  |3.9|[101, 103]     |
+|86       |Henry    |Gonzalez|3.9|[102, 104]     |
+|93       |Olivia   |Baker   |3.9|[101, 105]     |
+|98       |Taylor   |Perez   |3.9|[105]          |
+|1        |Alice    |Johnson |3.8|[101, 102, 103]|
+|10       |Jack     |Clark   |3.8|[101, 102]     |
+|19       |Samuel   |Evans   |3.8|[101, 103, 104]|
+|31       |Emma     |Turner  |3.8|[101, 102]     |
+|43       |Quinn    |Cooper  |3.8|[101, 102]     |
+|55       |Chloe    |Adams   |3.8|[101, 102]     |
+|67       |Olivia   |Young   |3.8|[105]          |
+|79       |Ava      |Gonzalez|3.8|[102, 104]     |
+|91       |Mia      |Ward    |3.8|[101, 103]     |
+|6        |Fiona    |Moore   |3.7|[102, 104]     |
+|15       |Olivia   |Smith   |3.7|[105]          |
+|23       |William  |Thomas  |3.7|[101, 102]     |
+|28       |Benjamin |Ward    |3.7|[104, 105]     |
+|35       |Isabella |Perez   |3.7|[104, 105]     |
+|40       |Nathan   |Young   |3.7|[101, 104, 105]|
+|47       |Uriel    |Martin  |3.7|[101, 104]     |
+|52       |Zachary  |Murphy  |3.7|[102, 104]     |
+|59       |Grace    |Fisher  |3.7|[104, 105]     |
+|64       |Liam     |Fisher  |3.7|[101, 104, 105]|
+|71       |Samuel   |Moore   |3.7|[102, 104, 105]|
+|76       |Xavier   |Reed    |3.7|[101, 104, 105]|
+|83       |Emma     |Adams   |3.7|[101, 104]     |
+|88       |James    |Stewart |3.7|[104, 105]     |
+|95       |Quinn    |Ward    |3.7|[101, 104, 105]|
+|100      |Victoria |Fisher  |3.7|[102, 105]     |
+|8        |Hannah   |Lee     |3.6|[101, 103, 105]|
+|17       |Quinn    |Brown   |3.6|[102, 103]     |
+|30       |Daniel   |Murphy  |3.6|[102, 104]     |
+|42       |Peter    |Williams|3.6|[104, 105]     |
+|54       |Benjamin |Evans   |3.6|[102, 104]     |
+|66       |Nathan   |Reed    |3.6|[101, 104]     |
+|78       |Zachary  |Howard  |3.6|[101, 105]     |
+|90       |Liam     |Hall    |3.6|[104, 105]     |
++---------+---------+--------+---+---------------+
+
+Students: 49
+Student 48 included: False
+
+===== 4.4 Course stats to save (courseId as _id)
+SELECT courseId AS _id, num_students, avg_gpa, min_gpa, max_gpa
+FROM course_summary
+
++---+------------+-------+-------+-------+
+|_id|num_students|avg_gpa|min_gpa|max_gpa|
++---+------------+-------+-------+-------+
+|101|48          |3.56   |3.1    |3.9    |
+|105|47          |3.5    |3.1    |3.9    |
+|104|44          |3.59   |3.1    |3.9    |
+|102|43          |3.5    |3.1    |3.9    |
+|103|36          |3.39   |3.1    |3.9    |
++---+------------+-------+-------+-------+
+
+Saved to: MongoDB university.course_stats
+
+===== 4.4 Course stats read back
+SELECT _id AS courseId, num_students, avg_gpa, min_gpa, max_gpa
+FROM course_stats_saved
+ORDER BY num_students DESC, courseId
+
++--------+------------+-------+-------+-------+
+|courseId|num_students|avg_gpa|min_gpa|max_gpa|
++--------+------------+-------+-------+-------+
+|101     |48          |3.56   |3.1    |3.9    |
+|105     |47          |3.5    |3.1    |3.9    |
+|104     |44          |3.59   |3.1    |3.9    |
+|102     |43          |3.5    |3.1    |3.9    |
+|103     |36          |3.39   |3.1    |3.9    |
++--------+------------+-------+-------+-------+
+
+
+===== 4.4 Rows that differ from 4.2.2 (should be 0)
+SELECT COUNT(*) AS differing_rows FROM (
+    (SELECT courseId, num_students, avg_gpa, min_gpa, max_gpa FROM course_summary
+     EXCEPT
+     SELECT _id, num_students, avg_gpa, min_gpa, max_gpa FROM course_stats_saved)
+    UNION ALL
+    (SELECT _id, num_students, avg_gpa, min_gpa, max_gpa FROM course_stats_saved
+     EXCEPT
+     SELECT courseId, num_students, avg_gpa, min_gpa, max_gpa FROM course_summary)
+)
+
++--------------+
+|differing_rows|
++--------------+
+|0             |
++--------------+
+
+SUCCESS: The process with PID 2272 (child process of PID 41088) has been terminated.
+SUCCESS: The process with PID 41088 (child process of PID 41356) has been terminated.
+SUCCESS: The process with PID 41356 (child process of PID 16276) has been terminated.
