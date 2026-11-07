@@ -8,6 +8,8 @@ root
  |    |-- element: integer (containsNull = true)
  |-- gpa: double (nullable = true)
 
+courseIds is ArrayType(IntegerType): True
+dateOfBirth is TimestampType: True
 Rows: 100
 
 ===== 4.1.1 Students in course 103
@@ -58,6 +60,7 @@ ORDER BY lastName, firstName, _id
 +---+---------+--------+---+
 
 4.1.1 count: 36
+4.1.1 matches Part 2: True (MongoDB 36, Spark 36)
 
 ===== 4.1.2 Students with GPA > 3.5
 SELECT _id, firstName, lastName, gpa
@@ -120,6 +123,7 @@ ORDER BY gpa DESC, lastName, _id
 +---+---------+--------+---+
 
 4.1.2 count: 49
+4.1.2 matches Part 3: True (MongoDB 49, Spark 49)
 
 ===== 4.2.1 Enrollments view (one row per student/course)
 CREATE OR REPLACE TEMP VIEW enrollments AS
@@ -458,6 +462,3 @@ SELECT COUNT(*) AS differing_rows FROM (
 |0             |
 +--------------+
 
-SUCCESS: The process with PID 2272 (child process of PID 41088) has been terminated.
-SUCCESS: The process with PID 41088 (child process of PID 41356) has been terminated.
-SUCCESS: The process with PID 41356 (child process of PID 16276) has been terminated.

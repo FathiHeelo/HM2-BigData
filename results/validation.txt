@@ -1,0 +1,138 @@
+Input validation, produced by piping input to the scripts.
+Prompts and messages appear on one line because piped input is not echoed.
+
+$ python src/query_by_course.py
+# input (one per line): abc | 103
+Enter course ID: Course ID must be an integer.
+Enter course ID: Query: {'courseIds': 103} sort: [('lastName', 1), ('firstName', 1)]
+22 Victoria Anderson 3.1
+51 Yasmine Baker 3.1
+87 Isabella Bell 3.1
+41 Olivia Bell 3.4
+36 James Brooks 3.5
+96 Rachel Brooks 3.5
+17 Quinn Brown 3.6
+81 Chloe Butler 3.9
+48 Victoria Butler 3.5
+58 Felix Cook 3.1
+99 Uriel Cook 3.1
+25 Yasmine Cooper 3.2
+5 Eric Davis 3.1
+19 Samuel Evans 3.8
+39 Mia Fisher 3.1
+72 Taylor Fisher 3.5
+49 William Fisher 3.2
+45 Samuel Foster 3.9
+53 Ava Gonzalez 3.4
+74 Victoria Gonzalez 3.9
+34 Henry Hall 3.1
+12 Liam Hall 3.2
+60 Henry Howard 3.5
+1 Alice Johnson 3.8
+14 Noah Johnson 3.1
+8 Hannah Lee 3.6
+65 Mia Lopez 3.4
+27 Ava Parker 3.1
+84 Felix Parker 3.5
+29 Chloe Reed 3.4
+69 Quinn Reed 3.9
+63 Katherine Stewart 3.1
+91 Mia Ward 3.8
+3 Charlie Williams 3.2
+94 Peter Young 3.1
+77 Yasmine Young 3.4
+Matches: 36
+Winning plan: {'isCached': False, 'stage': 'SORT', 'sortPattern': {'lastName': 1, 'firstName': 1}, 'memLimit': 104857600, 'type': 'simple', 'inputStage': {'stage': 'FETCH', 'nss': 'university.students', 'inputStage': {'stage': 'IXSCAN', 'nss': 'university.students', 'keyPattern': {'courseIds': 1}, 'indexName': 'courseIds_1', 'isMultiKey': True, 'multiKeyPaths': {'courseIds': ['courseIds']}, 'isUnique': False, 'isSparse': False, 'isPartial': False, 'indexVersion': 2, 'direction': 'forward', 'indexBounds': {'courseIds': ['[103, 103]']}}}}
+IXSCAN used? True indexes: ['courseIds_1']
+IXSCAN on courseIds_1? True
+
+$ python src/query_by_gpa.py
+# input (one per line): <Enter> | abc | 5 | -1 | 3.5
+Course ID (Enter to skip): GPA greater than (Enter to skip): GPA must be a number.
+GPA greater than (Enter to skip): GPA must be between 0.0 and 4.0.
+GPA greater than (Enter to skip): GPA must be between 0.0 and 4.0.
+GPA greater than (Enter to skip): Query: {'gpa': {'$gt': 3.5}}
+93 Olivia Baker 3.9
+81 Chloe Butler 3.9
+13 Mia Evans 3.9
+45 Samuel Foster 3.9
+86 Henry Gonzalez 3.9
+74 Victoria Gonzalez 3.9
+57 Emma Hall 3.9
+62 James Hill 3.9
+26 Zachary Lewis 3.9
+4 Diana Miller 3.9
+21 Uriel Moore 3.9
+98 Taylor Perez 3.9
+50 Xavier Perez 3.9
+69 Quinn Reed 3.9
+38 Liam Roberts 3.9
+33 Grace Russell 3.9
+55 Chloe Adams 3.8
+10 Jack Clark 3.8
+43 Quinn Cooper 3.8
+19 Samuel Evans 3.8
+79 Ava Gonzalez 3.8
+1 Alice Johnson 3.8
+31 Emma Turner 3.8
+91 Mia Ward 3.8
+67 Olivia Young 3.8
+83 Emma Adams 3.7
+100 Victoria Fisher 3.7
+64 Liam Fisher 3.7
+59 Grace Fisher 3.7
+47 Uriel Martin 3.7
+71 Samuel Moore 3.7
+6 Fiona Moore 3.7
+52 Zachary Murphy 3.7
+35 Isabella Perez 3.7
+76 Xavier Reed 3.7
+15 Olivia Smith 3.7
+88 James Stewart 3.7
+23 William Thomas 3.7
+95 Quinn Ward 3.7
+28 Benjamin Ward 3.7
+40 Nathan Young 3.7
+17 Quinn Brown 3.6
+54 Benjamin Evans 3.6
+90 Liam Hall 3.6
+78 Zachary Howard 3.6
+8 Hannah Lee 3.6
+30 Daniel Murphy 3.6
+66 Nathan Reed 3.6
+42 Peter Williams 3.6
+Matches: 49
+
+$ python src/query_by_gpa.py
+# input (one per line): abc | 103 | 3.5
+Course ID (Enter to skip): Course ID must be an integer.
+Course ID (Enter to skip): GPA greater than (Enter to skip): Query: {'courseIds': 103, 'gpa': {'$gt': 3.5}}
+81 Chloe Butler 3.9
+45 Samuel Foster 3.9
+74 Victoria Gonzalez 3.9
+69 Quinn Reed 3.9
+19 Samuel Evans 3.8
+1 Alice Johnson 3.8
+91 Mia Ward 3.8
+17 Quinn Brown 3.6
+8 Hannah Lee 3.6
+Matches: 9
+
+$ python src/query_by_gpa.py
+# input (one per line): <Enter> | <Enter>
+Course ID (Enter to skip): GPA greater than (Enter to skip): Please enter at least one condition.
+
+Command-line arguments are validated the same way:
+
+$ python src/query_by_course.py --course abc
+query_by_course.py: error: argument --course: invalid int value: 'abc'
+
+$ python src/query_by_gpa.py --gpa abc
+query_by_gpa.py: error: argument --gpa: GPA must be a number.
+
+$ python src/query_by_gpa.py --gpa 5
+query_by_gpa.py: error: argument --gpa: GPA must be between 0.0 and 4.0.
+
+$ python src/query_by_gpa.py --gpa -1
+query_by_gpa.py: error: argument --gpa: GPA must be between 0.0 and 4.0.
+
