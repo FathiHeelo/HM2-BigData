@@ -1,0 +1,11 @@
+Query: {'courseIds': 103, 'gpa': {'$gt': 3.5}}
+81 Chloe Butler 3.9
+45 Samuel Foster 3.9
+74 Victoria Gonzalez 3.9
+69 Quinn Reed 3.9
+19 Samuel Evans 3.8
+1 Alice Johnson 3.8
+91 Mia Ward 3.8
+17 Quinn Brown 3.6
+8 Hannah Lee 3.6
+Matches: 9
