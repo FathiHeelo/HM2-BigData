@@ -1,6 +1,10 @@
-__pycache__/
-*.pyc
-.venv/
+target/
+project/target/
+project/project/
+.bsp/
+.idea/
+.vscode/
+*.class
 spark-warehouse/
 metastore_db/
 derby.log
