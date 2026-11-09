@@ -150,7 +150,16 @@ SELECT * FROM enrollments ORDER BY studentId, courseId LIMIT 10
 |4        |Diana    |Miller  |1997-09-05 00:00:00|3.9|101     |
 +---------+---------+--------+-------------------+---+--------+
 
-Enrollment rows: 218
+
+===== 4.2.1 Number of enrollments
+SELECT COUNT(*) AS enrollment_rows FROM enrollments
+
++---------------+
+|enrollment_rows|
++---------------+
+|218            |
++---------------+
+
 
 ===== 4.2.2 Summary per course
 SELECT courseId,

@@ -95,7 +95,7 @@ object SparkAnalysis {
       |FROM students
     """, show = false)
     run("4.2.1 First 10 enrollments", "SELECT * FROM enrollments ORDER BY studentId, courseId LIMIT 10")
-    println(s"Enrollment rows: ${spark.sql("SELECT * FROM enrollments").count()}")
+    run("4.2.1 Number of enrollments", "SELECT COUNT(*) AS enrollment_rows FROM enrollments")
 
     val courseSummary = run("4.2.2 Summary per course", """
       |SELECT courseId,
