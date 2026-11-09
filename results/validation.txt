@@ -1,10 +1,10 @@
-Input validation, produced by piping input to the scripts.
+Input validation, produced by piping input to the programs through sbt.
 Prompts and messages appear on one line because piped input is not echoed.
 
-$ python src/query_by_course.py
+$ sbt "runMain QueryByCourse"
 # input (one per line): abc | 103
 Enter course ID: Course ID must be an integer.
-Enter course ID: Query: {'courseIds': 103} sort: [('lastName', 1), ('firstName', 1)]
+Enter course ID: Query: {"courseIds": 103} sort: {"lastName": 1, "firstName": 1}
 22 Victoria Anderson 3.1
 51 Yasmine Baker 3.1
 87 Isabella Bell 3.1
@@ -42,16 +42,16 @@ Enter course ID: Query: {'courseIds': 103} sort: [('lastName', 1), ('firstName',
 94 Peter Young 3.1
 77 Yasmine Young 3.4
 Matches: 36
-Winning plan: {'isCached': False, 'stage': 'SORT', 'sortPattern': {'lastName': 1, 'firstName': 1}, 'memLimit': 104857600, 'type': 'simple', 'inputStage': {'stage': 'FETCH', 'nss': 'university.students', 'inputStage': {'stage': 'IXSCAN', 'nss': 'university.students', 'keyPattern': {'courseIds': 1}, 'indexName': 'courseIds_1', 'isMultiKey': True, 'multiKeyPaths': {'courseIds': ['courseIds']}, 'isUnique': False, 'isSparse': False, 'isPartial': False, 'indexVersion': 2, 'direction': 'forward', 'indexBounds': {'courseIds': ['[103, 103]']}}}}
-IXSCAN used? True indexes: ['courseIds_1']
+Winning plan: {"isCached": false, "stage": "SORT", "sortPattern": {"lastName": 1, "firstName": 1}, "memLimit": 104857600, "type": "simple", "inputStage": {"stage": "FETCH", "nss": "university.students", "inputStage": {"stage": "IXSCAN", "nss": "university.students", "keyPattern": {"courseIds": 1}, "indexName": "courseIds_1", "isMultiKey": true, "multiKeyPaths": {"courseIds": ["courseIds"]}, "isUnique": false, "isSparse": false, "isPartial": false, "indexVersion": 2, "direction": "forward", "indexBounds": {"courseIds": ["[103, 103]"]}}}}
+IXSCAN used? True indexes: [courseIds_1]
 IXSCAN on courseIds_1? True
 
-$ python src/query_by_gpa.py
+$ sbt "runMain QueryByGpa"
 # input (one per line): <Enter> | abc | 5 | -1 | 3.5
 Course ID (Enter to skip): GPA greater than (Enter to skip): GPA must be a number.
 GPA greater than (Enter to skip): GPA must be between 0.0 and 4.0.
 GPA greater than (Enter to skip): GPA must be between 0.0 and 4.0.
-GPA greater than (Enter to skip): Query: {'gpa': {'$gt': 3.5}}
+GPA greater than (Enter to skip): Query: {"gpa": {"$gt": 3.5}}
 93 Olivia Baker 3.9
 81 Chloe Butler 3.9
 13 Mia Evans 3.9
@@ -103,10 +103,10 @@ GPA greater than (Enter to skip): Query: {'gpa': {'$gt': 3.5}}
 42 Peter Williams 3.6
 Matches: 49
 
-$ python src/query_by_gpa.py
+$ sbt "runMain QueryByGpa"
 # input (one per line): abc | 103 | 3.5
 Course ID (Enter to skip): Course ID must be an integer.
-Course ID (Enter to skip): GPA greater than (Enter to skip): Query: {'courseIds': 103, 'gpa': {'$gt': 3.5}}
+Course ID (Enter to skip): GPA greater than (Enter to skip): Query: {"courseIds": 103, "gpa": {"$gt": 3.5}}
 81 Chloe Butler 3.9
 45 Samuel Foster 3.9
 74 Victoria Gonzalez 3.9
@@ -118,21 +118,34 @@ Course ID (Enter to skip): GPA greater than (Enter to skip): Query: {'courseIds'
 8 Hannah Lee 3.6
 Matches: 9
 
-$ python src/query_by_gpa.py
+$ sbt "runMain QueryByGpa"
 # input (one per line): <Enter> | <Enter>
 Course ID (Enter to skip): GPA greater than (Enter to skip): Please enter at least one condition.
 
-Command-line arguments are validated the same way:
+Command-line arguments are validated the same way (error on stderr, exit code 2):
 
-$ python src/query_by_course.py --course abc
-query_by_course.py: error: argument --course: invalid int value: 'abc'
+$ sbt "runMain QueryByCourse --course abc"
+usage: QueryByCourse [--course COURSE]
+QueryByCourse: error: argument --course: invalid int value: 'abc'
+# exit code 2
 
-$ python src/query_by_gpa.py --gpa abc
-query_by_gpa.py: error: argument --gpa: GPA must be a number.
+$ sbt "runMain QueryByGpa --gpa abc"
+usage: QueryByGpa [--gpa GPA] [--course COURSE]
+QueryByGpa: error: argument --gpa: GPA must be a number.
+# exit code 2
 
-$ python src/query_by_gpa.py --gpa 5
-query_by_gpa.py: error: argument --gpa: GPA must be between 0.0 and 4.0.
+$ sbt "runMain QueryByGpa --gpa 5"
+usage: QueryByGpa [--gpa GPA] [--course COURSE]
+QueryByGpa: error: argument --gpa: GPA must be between 0.0 and 4.0.
+# exit code 2
 
-$ python src/query_by_gpa.py --gpa -1
-query_by_gpa.py: error: argument --gpa: GPA must be between 0.0 and 4.0.
+$ sbt "runMain QueryByGpa --gpa -1"
+usage: QueryByGpa [--gpa GPA] [--course COURSE]
+QueryByGpa: error: argument --gpa: GPA must be between 0.0 and 4.0.
+# exit code 2
+
+$ sbt "runMain QueryByGpa --gpa NaN"
+usage: QueryByGpa [--gpa GPA] [--course COURSE]
+QueryByGpa: error: argument --gpa: GPA must be a number.
+# exit code 2
 

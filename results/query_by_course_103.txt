@@ -1,4 +1,4 @@
-Query: {'courseIds': 103} sort: [('lastName', 1), ('firstName', 1)]
+Query: {"courseIds": 103} sort: {"lastName": 1, "firstName": 1}
 22 Victoria Anderson 3.1
 51 Yasmine Baker 3.1
 87 Isabella Bell 3.1
@@ -36,6 +36,6 @@ Query: {'courseIds': 103} sort: [('lastName', 1), ('firstName', 1)]
 94 Peter Young 3.1
 77 Yasmine Young 3.4
 Matches: 36
-Winning plan: {'isCached': False, 'stage': 'SORT', 'sortPattern': {'lastName': 1, 'firstName': 1}, 'memLimit': 104857600, 'type': 'simple', 'inputStage': {'stage': 'FETCH', 'nss': 'university.students', 'inputStage': {'stage': 'IXSCAN', 'nss': 'university.students', 'keyPattern': {'courseIds': 1}, 'indexName': 'courseIds_1', 'isMultiKey': True, 'multiKeyPaths': {'courseIds': ['courseIds']}, 'isUnique': False, 'isSparse': False, 'isPartial': False, 'indexVersion': 2, 'direction': 'forward', 'indexBounds': {'courseIds': ['[103, 103]']}}}}
-IXSCAN used? True indexes: ['courseIds_1']
+Winning plan: {"isCached": false, "stage": "SORT", "sortPattern": {"lastName": 1, "firstName": 1}, "memLimit": 104857600, "type": "simple", "inputStage": {"stage": "FETCH", "nss": "university.students", "inputStage": {"stage": "IXSCAN", "nss": "university.students", "keyPattern": {"courseIds": 1}, "indexName": "courseIds_1", "isMultiKey": true, "multiKeyPaths": {"courseIds": ["courseIds"]}, "isUnique": false, "isSparse": false, "isPartial": false, "indexVersion": 2, "direction": "forward", "indexBounds": {"courseIds": ["[103, 103]"]}}}}
+IXSCAN used? True indexes: [courseIds_1]
 IXSCAN on courseIds_1? True

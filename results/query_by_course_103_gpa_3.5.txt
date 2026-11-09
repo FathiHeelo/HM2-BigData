@@ -1,4 +1,4 @@
-Query: {'courseIds': 103, 'gpa': {'$gt': 3.5}}
+Query: {"courseIds": 103, "gpa": {"$gt": 3.5}}
 81 Chloe Butler 3.9
 45 Samuel Foster 3.9
 74 Victoria Gonzalez 3.9

@@ -1,4 +1,4 @@
-Query: {'gpa': {'$gt': 3.5}}
+Query: {"gpa": {"$gt": 3.5}}
 93 Olivia Baker 3.9
 81 Chloe Butler 3.9
 13 Mia Evans 3.9
